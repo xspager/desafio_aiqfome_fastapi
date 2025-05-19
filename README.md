@@ -10,7 +10,7 @@ Para rodar a aplicação com o banco de dados você precisa ter o Docker e o doc
 $ docker-compose up
 ```
 
-<localhost:8000/docs>
+<http://localhost:8000/docs>
 
 
 ## Rodar os testes
