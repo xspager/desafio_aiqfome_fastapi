@@ -19,7 +19,7 @@ est
 
 ## TODO
 
-- [ ] Cliente
+- [x] Cliente
 - [ ] Produtos
 - [ ] Favoritos
 - [ ] Reviews
