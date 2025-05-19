@@ -79,3 +79,14 @@ def test_edit_client(client: TestClient, session: Session):
 
     assert response.status_code == 204
     assert c_client.name == "Totally regular user name"
+
+def test_client_email_must_be_unique(client: TestClient, session: Session):
+    response = client.post("/client/", json={"name": "Bob", "email": "bobemail"})
+
+    assert response.status_code == 200
+
+    # FIXME: Is this the best way?
+    with pytest.raises(Exception):
+        response = client.post("/client/", json={"name": "Bob2", "email": "bobemail"})
+
+    assert response.status_code == 200
