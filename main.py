@@ -7,7 +7,7 @@ from fastapi import Depends, FastAPI, Query, HTTPException, status
 from sqlmodel import Session, select
 
 from database import engine, create_db_and_tables
-from models import Product, Client
+from models import ClientCreate, Product, Client
 
 
 def get_session():
@@ -51,11 +51,12 @@ async def read_products(
 
 
 @app.post("/client/")
-async def create_client(client: Client, session: Session = Depends(get_session)):
-    session.add(client)
+async def create_client(client: ClientCreate, session: Session = Depends(get_session)):
+    db_client = Client.model_validate(client)
+    session.add(db_client)
     session.commit()
-    session.refresh(client)
-    return client
+    session.refresh(db_client)
+    return db_client
 
 
 @app.delete("/client/{client_id}", status_code=status.HTTP_204_NO_CONTENT)

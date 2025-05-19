@@ -46,7 +46,7 @@ def test_products_get(client: TestClient, session: Session):
 
 def test_create_client(client: TestClient, session: Session):
     response = client.post(
-        "/client/", json={"name": "Bob Tables", "email": "obviously not an email"}
+        "/client/", json={"name": "Bob Tables", "email": "an@email.c"}
     )
 
     data = response.json()
@@ -80,13 +80,16 @@ def test_edit_client(client: TestClient, session: Session):
     assert response.status_code == 204
     assert c_client.name == "Totally regular user name"
 
+
 def test_client_email_must_be_unique(client: TestClient, session: Session):
-    response = client.post("/client/", json={"name": "Bob", "email": "bobemail"})
+    response = client.post("/client/", json={"name": "Bob", "email": "bob@email.com"})
 
     assert response.status_code == 200
 
     # FIXME: Is this the best way?
     with pytest.raises(Exception):
-        response = client.post("/client/", json={"name": "Bob2", "email": "bobemail"})
+        response = client.post(
+            "/client/", json={"name": "Bob2", "email": "bob@email.com"}
+        )
 
-    assert response.status_code == 200
+        assert response.status_code == 200

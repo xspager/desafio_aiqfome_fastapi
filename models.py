@@ -1,5 +1,8 @@
+from typing import Optional
 import uuid
 
+from email_validator import EmailNotValidError
+from pydantic import EmailStr
 from sqlmodel import Column, Field, SQLModel, String
 
 
@@ -15,7 +18,14 @@ class User(SQLModel, table=True):
     email: str
 
 
-class Client(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+class ClientBase(SQLModel):
     name: str
-    email: str = Field(sa_column=Column("email", String, unique=True))
+    email: EmailStr = Field(unique=True)
+
+
+class Client(ClientBase, table=True):
+    id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
+
+
+class ClientCreate(ClientBase):
+    pass
