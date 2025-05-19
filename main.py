@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
+from typing import List
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, Query
 from sqlmodel import Session, select
 
 from database import engine, create_db_and_tables
@@ -18,7 +19,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-@app.get("/products")
-async def products_get(*, session, offset, limit):
+@app.get("/products/", response_model=List[Product])
+async def read_products(session: Session = Depends(get_session), offset: int = 0, limit: int = Query(default=100, le=100)):
     products = session.exec(select(Product).offset(offset).limit(limit)).all()
     return products
