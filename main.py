@@ -3,6 +3,8 @@ from uuid import UUID
 from contextlib import asynccontextmanager
 from typing import List
 
+from sqlalchemy.exc import IntegrityError
+
 from fastapi import Depends, FastAPI, Query, HTTPException, status
 from sqlmodel import Session, select
 
@@ -54,7 +56,11 @@ async def read_products(
 async def create_client(client: ClientCreate, session: Session = Depends(get_session)):
     db_client = Client.model_validate(client)
     session.add(db_client)
-    session.commit()
+    # FIXME: There must be a better way to do this
+    try:
+        session.commit()
+    except IntegrityError as e:
+        raise HTTPException(500, detail="Integrity Error")
     session.refresh(db_client)
     return db_client
 
@@ -80,9 +86,12 @@ async def update_client(
     session.commit()
     session.refresh(db_client)
 
+
 @app.get("/client/", response_model=list[Client])
-async def read_clients(session: Session = Depends(get_session),
+async def read_clients(
+    session: Session = Depends(get_session),
     offset: int = 0,
-    limit: int = Query(default=100, le=100)):
+    limit: int = Query(default=100, le=100),
+):
     clients = session.exec(select(Client).offset(offset).limit(limit)).all()
     return clients

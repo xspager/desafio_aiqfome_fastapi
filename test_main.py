@@ -81,6 +81,19 @@ def test_edit_client(client: TestClient, session: Session):
     assert c_client.name == "Totally regular user name"
 
 
+def test_edit_client_with_same_email(client: TestClient, session: Session):
+    client_a = Client(name="Who's Bob Tables", email="another clearly not an email")
+    client_b = Client(name="Who's Who", email="not an email")
+    session.add_all([client_a, client_b])
+    session.commit()
+    session.refresh(client_b)
+
+    with pytest.raises(Exception):
+        response = client.patch(
+            f"/client/{client_b.id}", json={"email": "another clearly not an email"}
+        )
+
+
 def test_client_email_must_be_unique(client: TestClient, session: Session):
     response = client.post("/client/", json={"name": "Bob", "email": "bob@email.com"})
 
@@ -93,6 +106,7 @@ def test_client_email_must_be_unique(client: TestClient, session: Session):
         )
 
         assert response.status_code == 200
+
 
 def test_get_all_clients(client: TestClient, session: Session):
     client_a = Client(name="Bob Tables", email="bob@table.com")
