@@ -18,6 +18,6 @@ RUN apk update \
 # copy project
 COPY . .
 
-RUN uv sync --frozen --no-cache
+RUN uv sync --no-cache
 
 CMD ["/app/.venv/bin/fastapi", "run", "main.py", "--port", "8000", "--host", "0.0.0.0"]

@@ -12,16 +12,26 @@ services:
       - media_volume:/desafio_aiqfome/mediafiles
     ports:
       - 8000:80
+    environment:
+      - RUNNING_ON_DOCKER_COMPOSE=1
     env_file:
       - ./.env.dev
+      - ./.env.db
     depends_on:
-      - db
+      db:
+        condition: service_healthy
   db:
     image: postgres:17.5-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env.db
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "db"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
   # nginx:
   #   build: ./conf/nginx
   #   volumes:
