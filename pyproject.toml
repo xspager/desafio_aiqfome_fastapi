@@ -1,0 +1,17 @@
+[project]
+name = "desafio-aiqfome-fastapi"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.115.12",
+    "gunicorn==21.2.0",
+    "uvicorn[standard]==0.27.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=8.3.5",
+]
