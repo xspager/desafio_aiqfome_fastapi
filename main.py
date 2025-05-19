@@ -79,3 +79,10 @@ async def update_client(
     session.add(db_client)
     session.commit()
     session.refresh(db_client)
+
+@app.get("/client/", response_model=list[Client])
+async def read_clients(session: Session = Depends(get_session),
+    offset: int = 0,
+    limit: int = Query(default=100, le=100)):
+    clients = session.exec(select(Client).offset(offset).limit(limit)).all()
+    return clients

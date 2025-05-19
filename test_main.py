@@ -93,3 +93,16 @@ def test_client_email_must_be_unique(client: TestClient, session: Session):
         )
 
         assert response.status_code == 200
+
+def test_get_all_clients(client: TestClient, session: Session):
+    client_a = Client(name="Bob Tables", email="bob@table.com")
+    client_b = Client(name="Bob Tables", email="other_bob@table.com")
+    session.add_all([client_a, client_b])
+    session.commit()
+
+    response = client.get("/client/")
+
+    data = response.json()
+
+    assert response.status_code == 200
+    assert len(data) == 2
