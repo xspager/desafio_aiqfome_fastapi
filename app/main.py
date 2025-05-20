@@ -157,8 +157,6 @@ async def create_favorite(
     favorite: FavoriteCreate, session: Session = Depends(get_session)
 ):
     async def validate_product(product_id):
-        # FIXME: Get the client from a central location so we can use pool of connections
-
         data = await get_product_data(product_id)
 
         return data.get("id", None) is not None
