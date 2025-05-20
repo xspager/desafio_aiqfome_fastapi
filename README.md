@@ -20,8 +20,8 @@ est
 ## TODO
 
 - [x] Cliente
-- [ ] Produtos
 - [ ] Favoritos
 - [ ] Reviews
 - [x] Subir para o Github
+- [ ] Autenticação e Autorização
 - [ ] Rodar os testes num Gitbub Action/CI

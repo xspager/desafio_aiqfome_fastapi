@@ -10,8 +10,8 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import Depends, FastAPI, Query, HTTPException, status
 from sqlmodel import Session, select
 
-from database import engine, create_db_and_tables
-from models import Client, ClientWithFavorites, Favorite, FavoriteCreate, FavoritePublic
+from app.database import engine, create_db_and_tables
+from app.models import Client, ClientWithFavorites, Favorite, FavoriteCreate, FavoritePublic
 
 
 def get_session():
@@ -71,6 +71,8 @@ async def read_client(client_id: str, session: Session = Depends(get_session)):
     client = session.get(Client, UUID(client_id))
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
+
+    # TODO: return favorites with data from external API
 
     return client
 

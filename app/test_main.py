@@ -5,8 +5,8 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 
-from main import app, get_session
-from models import Client, Favorite
+from app.main import app, get_session
+from app.models import Client, Favorite
 
 
 @pytest.fixture(name="session")
@@ -116,6 +116,8 @@ def test_get_all_clients(client: TestClient, session: Session):
     assert response.status_code == 200
     assert len(data) == 2
 
+
+# TODO: Mock requests to external API
 
 @pytest.mark.asyncio
 def test_create_favorite(client: TestClient, session: Session):
