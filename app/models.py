@@ -22,6 +22,7 @@ class ClientCreate(ClientBase):
 
 
 class ClientWithFavorites(ClientBase):
+    id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
     favorites: List["FavoritePublic"] = []
 
 

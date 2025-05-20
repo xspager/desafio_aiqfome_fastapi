@@ -11,7 +11,14 @@ from fastapi import Depends, FastAPI, Query, HTTPException, status
 from sqlmodel import Session, select
 
 from app.database import engine, create_db_and_tables
-from app.models import Client, ClientWithFavorites, Favorite, FavoriteCreate, FavoritePublic
+from app.models import (
+    Client,
+    ClientBase,
+    ClientWithFavorites,
+    Favorite,
+    FavoriteCreate,
+    FavoritePublic,
+)
 
 
 def get_session():
@@ -54,7 +61,7 @@ async def get_product_data(product_id: int) -> dict[str, Any]:
 
 
 @app.post("/client/")
-async def create_client(client: Client, session: Session = Depends(get_session)):
+async def create_client(client: ClientBase, session: Session = Depends(get_session)):
     db_client = Client.model_validate(client)
     session.add(db_client)
     # FIXME: There must be a better way to do this
@@ -161,3 +168,15 @@ async def create_favorite(
     session.add(db_favorite)
     session.commit()
     session.refresh(db_favorite)
+
+
+@app.delete("/favorite/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_favorite(product_id: int, session: Session = Depends(get_session)):
+    favorite = session.exec(
+        select(Favorite).where(Favorite.product_id == product_id)
+    ).first()
+    if not favorite:
+        raise HTTPException(status_code=404, detail="Favorite not found")
+
+    session.delete(favorite)
+    session.commit()

@@ -62,7 +62,7 @@ def test_delete_client(client: TestClient, session: Session):
     response = client.delete(f"/client/{c_client.id}")
 
     assert response.status_code == 204
-    assert session.get(Client, c_client.id) == None
+    assert session.get(Client, c_client.id) is None
 
 
 def test_edit_client(client: TestClient, session: Session):
@@ -119,6 +119,7 @@ def test_get_all_clients(client: TestClient, session: Session):
 
 # TODO: Mock requests to external API
 
+
 @pytest.mark.asyncio
 def test_create_favorite(client: TestClient, session: Session):
     c_client = Client(name="My favorite Client", email="another clearly not an email")
@@ -152,3 +153,24 @@ def test_create_duplicate_favorite(client: TestClient, session: Session):
                 "product_id": 1,
             },
         )
+
+
+@pytest.mark.asyncio
+def test_delete_favorite(client: TestClient, session: Session):
+    c_client = Client(name="My favorite Client", email="another clearly not an email")
+    favorite = Favorite(product_id=1, client=c_client)
+    session.add(c_client)
+    session.add(favorite)
+    session.commit()
+
+    session.refresh(c_client)
+    assert len(c_client.favorites) == 1
+
+    response = client.delete(
+        "/favorite/1",
+    )
+
+    session.refresh(c_client)
+
+    assert response.status_code == 204
+    assert len(c_client.favorites) == 0
