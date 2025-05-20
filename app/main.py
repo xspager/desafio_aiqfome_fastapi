@@ -1,3 +1,4 @@
+import atexit
 from typing import Any
 from uuid import UUID
 
@@ -20,6 +21,10 @@ from app.models import (
     FavoritePublic,
 )
 
+
+httpx_client = httpx.AsyncClient()
+
+atexit.register(httpx_client.aclose)
 
 def get_session():
     with Session(engine) as session:
@@ -52,7 +57,6 @@ Favoritos
 
 
 async def get_product_data(product_id: int) -> dict[str, Any]:
-    httpx_client = httpx.AsyncClient()
     req = httpx_client.build_request(
         "GET", f"https://fakestoreapi.com/products/{product_id}"
     )
