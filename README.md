@@ -14,7 +14,9 @@ $ docker-compose up
 
 
 ## Rodar os testes
-docker-compose exec web /app/.venv/bin/pytest
+```bash
+$ docker-compose exec web /app/.venv/bin/pytest
+```
 
 ## TODO
 
