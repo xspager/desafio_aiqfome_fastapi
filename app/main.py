@@ -57,6 +57,8 @@ async def get_product_data(product_id: int) -> dict[str, Any]:
         "GET", f"https://fakestoreapi.com/products/{product_id}"
     )
     resp = await httpx_client.send(req)
+    if resp.content == b'':
+        return {}
     return resp.raise_for_status().json()
 
 
