@@ -41,6 +41,7 @@ def test_create_client(client: TestClient, session: Session):
     assert response.status_code == 200
     assert data["id"] is not None
 
+
 def test_read_client(client: TestClient, session: Session):
     c_client = Client(name="Bob Tables", email="another clearly not an email")
     session.add(c_client)

@@ -43,11 +43,12 @@ Favoritos
     Produtos favoritos devem exibir: ID, título, imagem, preço e review (se houver).
 """
 
+
 async def get_product_data(product_id: int) -> dict[str, Any]:
     httpx_client = httpx.AsyncClient()
     req = httpx_client.build_request(
-                "GET", f"https://fakestoreapi.com/products/{product_id}"
-            )
+        "GET", f"https://fakestoreapi.com/products/{product_id}"
+    )
     resp = await httpx_client.send(req)
     return resp.raise_for_status().json()
 
@@ -64,20 +65,22 @@ async def create_client(client: Client, session: Session = Depends(get_session))
     session.refresh(db_client)
     return db_client
 
+
 @app.get("/client/{client_id}", response_model=Client)
 async def read_client(client_id: str, session: Session = Depends(get_session)):
-       client = session.get(Client, UUID(client_id))
-       if not client:
+    client = session.get(Client, UUID(client_id))
+    if not client:
         raise HTTPException(status_code=404, detail="Client not found")
-       
-       return client
+
+    return client
+
 
 @app.delete("/client/{client_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_client(client_id: str, session: Session = Depends(get_session)):
     client = session.get(Client, UUID(client_id))
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
-    
+
     session.delete(client)
     session.commit()
 
