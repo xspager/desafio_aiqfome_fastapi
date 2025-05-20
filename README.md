@@ -20,7 +20,7 @@ est
 ## TODO
 
 - [x] Cliente
-- [ ] Favoritos
+- [x] Favoritos
 - [ ] Reviews
 - [x] Subir para o Github
 - [ ] Autenticação e Autorização
