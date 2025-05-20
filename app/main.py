@@ -73,15 +73,26 @@ async def create_client(client: ClientBase, session: Session = Depends(get_sessi
     return db_client
 
 
-@app.get("/client/{client_id}", response_model=Client)
+@app.get("/client/{client_id}", response_model=ClientWithFavorites)
 async def read_client(client_id: str, session: Session = Depends(get_session)):
     client = session.get(Client, UUID(client_id))
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
 
-    # TODO: return favorites with data from external API
+    return_favorites = []
 
-    return client
+    for favorite in client.favorites:
+        data = await get_product_data(favorite.product_id)
+
+        data.pop("id")
+        data["product_id"] = favorite.product_id
+        return_favorites.append(FavoritePublic(**data))
+
+    return_client = ClientWithFavorites(**client.model_dump())
+    return_client.favorites = return_favorites
+
+    return return_client
+
 
 
 @app.delete("/client/{client_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -142,13 +153,8 @@ async def create_favorite(
 ):
     async def validate_product(product_id):
         # FIXME: Get the client from a central location so we can use pool of connections
-        client = httpx.AsyncClient()
-        req = client.build_request(
-            "GET", f"https://fakestoreapi.com/products/{product_id}"
-        )
-        response = await client.send(req)
-
-        data = response.raise_for_status().json()
+        
+        data = await get_product_data(product_id)
 
         return data.get("id", None) is not None
 

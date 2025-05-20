@@ -1,35 +1,16 @@
+from asyncio import Future
+from unittest.mock import AsyncMock, patch
+
 import pytest
 
 from fastapi.testclient import TestClient
 
-from sqlmodel import Session, SQLModel, create_engine
-from sqlmodel.pool import StaticPool
+from sqlmodel import Session
 
-from app.main import app, get_session
-from app.models import Client, Favorite
+from ..models import Client, Favorite
+from .. import main
 
-
-@pytest.fixture(name="session")
-def session_fixture():
-    engine = create_engine(
-        "sqlite://",
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
-    SQLModel.metadata.create_all(engine)
-    with Session(engine) as session:
-        yield session
-
-
-@pytest.fixture(name="client")
-def client_fixture(session: Session):
-    def get_session_override():
-        return session
-
-    app.dependency_overrides[get_session] = get_session_override
-    client = TestClient(app)
-    yield client
-    app.dependency_overrides.clear()
+from .fixtures import session_fixture, client_fixture, mock_get_product_data
 
 
 def test_create_client(client: TestClient, session: Session):
@@ -43,14 +24,29 @@ def test_create_client(client: TestClient, session: Session):
 
 
 def test_read_client(client: TestClient, session: Session):
-    c_client = Client(name="Bob Tables", email="another clearly not an email")
+    c_client = Client(name="Bob Tables", email="another@email.com")
+    favorite = Favorite(product_id=2, client=c_client)
     session.add(c_client)
+    session.add(favorite)
     session.commit()
     session.refresh(c_client)
 
-    response = client.get(f"/client/{c_client.id}")
+    with patch("app.main.get_product_data") as mock:
+        mock.return_value = {
+            "id": 2,
+            "title": "",
+            "price": 1.1,
+            "description": "",
+            "category": "",
+            "image": ""
+        }
+
+        response = client.get(f"/client/{c_client.id}")
+
+    data = response.json()
 
     assert response.status_code == 200
+    assert len(data["favorites"]) == 1
 
 
 def test_delete_client(client: TestClient, session: Session):
@@ -117,21 +113,24 @@ def test_get_all_clients(client: TestClient, session: Session):
     assert len(data) == 2
 
 
-# TODO: Mock requests to external API
-
-
 @pytest.mark.asyncio
 def test_create_favorite(client: TestClient, session: Session):
+
     c_client = Client(name="My favorite Client", email="another clearly not an email")
     session.add(c_client)
     session.commit()
 
-    response = client.post(
-        "/favorite/",
-        json={
-            "product_id": 1,
-        },
-    )
+    with patch("app.main.get_product_data") as mock:
+        mock.return_value = {
+            "id": 1
+        }
+
+        response = client.post(
+            "/favorite/",
+            json={
+                "product_id": 1,
+            },
+        )
 
     assert response.status_code == 200
     session.refresh(c_client)
