@@ -94,7 +94,6 @@ async def read_client(client_id: str, session: Session = Depends(get_session)):
     return return_client
 
 
-
 @app.delete("/client/{client_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_client(client_id: str, session: Session = Depends(get_session)):
     client = session.get(Client, UUID(client_id))
@@ -153,7 +152,7 @@ async def create_favorite(
 ):
     async def validate_product(product_id):
         # FIXME: Get the client from a central location so we can use pool of connections
-        
+
         data = await get_product_data(product_id)
 
         return data.get("id", None) is not None

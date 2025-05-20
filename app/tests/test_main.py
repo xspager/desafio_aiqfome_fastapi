@@ -1,5 +1,4 @@
-from asyncio import Future
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -8,9 +7,6 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from ..models import Client, Favorite
-from .. import main
-
-from .fixtures import session_fixture, client_fixture, mock_get_product_data
 
 
 def test_create_client(client: TestClient, session: Session):
@@ -38,7 +34,7 @@ def test_read_client(client: TestClient, session: Session):
             "price": 1.1,
             "description": "",
             "category": "",
-            "image": ""
+            "image": "",
         }
 
         response = client.get(f"/client/{c_client.id}")
@@ -115,15 +111,12 @@ def test_get_all_clients(client: TestClient, session: Session):
 
 @pytest.mark.asyncio
 def test_create_favorite(client: TestClient, session: Session):
-
     c_client = Client(name="My favorite Client", email="another clearly not an email")
     session.add(c_client)
     session.commit()
 
     with patch("app.main.get_product_data") as mock:
-        mock.return_value = {
-            "id": 1
-        }
+        mock.return_value = {"id": 1}
 
         response = client.post(
             "/favorite/",
