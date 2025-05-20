@@ -8,6 +8,8 @@ from sqlmodel import Session
 
 from ..models import Client, Favorite
 
+from .fixtures import client_fixture, session_fixture
+
 
 def test_create_client(client: TestClient, session: Session):
     response = client.post(
